@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<link rel='stylesheet' href='/stylesheets/style.css' />
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+  <h1>Workshop Grades</h1>
+  <header>
+  <% include ./partials/header %>
+</header>
+  <head>
+    <title>Workshop Grades</title>
+  </head>
+<body>
+<a href="javascript:history.back()"> Volver Atrás</a>
+<h4>Elija el taller del que quiere ver las notas en el siguiente desplegable:</h4>
+<br/><br/>
+<form method='POST' action='/users' id="course" enctype="application/x-www-form-urlencoded">
+<input type="hidden" value=<%=url%> name='url'>
+<input type="hidden" value=<%=token%> name='token'>
+<input type="hidden" value=<%=array%> name='workshops'>
+<input type="hidden" value=<%=courseid%> name='courseid'>
+<div class="row">
+<div class="col-md-3">
+	<p>Seleccione el taller:</p>
+</div>
+<br></br>
+<div class="col-md-3">
+<select id="id" name="id"></select>
+<script type="text/javascript">
+var arrays = <%- JSON.stringify(array) %>;
+for(i=0;i<arrays.length;i++){
+  var opt = document.createElement("option");
+  opt.text = arrays[i].workshopid+'-'+arrays[i].workshopname;
+  opt.value = arrays[i].workshopid;
+  document.getElementById("id").add(opt,0);
+}
+</script>
+<br></br>
+<br></br>
+<br></br>
+<input type="submit" value="Mostrar" padding= 200px> 
+</div></div>
+</form>
+<br/> 
+</body>
+<footer>
+<br/><br/><br/><br/>
+    <% include ./partials/footer %>
+</footer>
+</html>
