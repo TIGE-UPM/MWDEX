@@ -14,8 +14,12 @@ exports.getInfo = async (req, res) => {
             res.render('error');
         }
         const arrayDataUser = await getMatchData(array);
-        const path = await getExcelFromArray(arrayDataUser);
-        res.download(path, 'notas.xlsx');
+        if(req.query.check=="excel"){
+            const path = await getExcelFromArray(arrayDataUser);
+            res.download(path, 'notas.xlsx');
+        }else{
+            res.send('error')
+        }
     } catch (error) {
         throw new Error("No se han podido obtener los datos");
     }
@@ -64,6 +68,7 @@ getUsers = async (url, token, courseid) => {
 
 getGradesReport = async (url, token, workshopid) => {
     var arrayAssessments = [];
+    var arraySubmissions = [];
     var arrayData = [];
     var arrayFeedbackFinal = [];
     var arrayAsp = [];
@@ -100,6 +105,9 @@ getGradesReport = async (url, token, workshopid) => {
             })
             arrayAssessments.push({
                 assessmentid: reviewedby.assessmentid,
+            })
+            arraySubmissions.push({
+                submissionid: arrayReport.submissionid,
             })
         }
     }
@@ -319,4 +327,8 @@ getExcelFromArray = async (array) => {
         throw error;
     }
 
+}
+
+getJsonFromArray = async (array) => {
+    
 }
