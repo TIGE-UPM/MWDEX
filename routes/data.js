@@ -1,7 +1,7 @@
 //var request = require('request');
 var request = require('request-promise');
 var Excel = require('exceljs/modern.nodejs');
-
+var fs = require('fs');
 
 //llamo a getUsers y también a las siguientes funciones
 exports.getInfo = async (req, res) => {
@@ -14,11 +14,15 @@ exports.getInfo = async (req, res) => {
             res.render('error');
         }
         const arrayDataUser = await getMatchData(array);
+        const arrayDataJson = await getMatchJson(array)
         if(req.query.check=="excel"){
             const path = await getExcelFromArray(arrayDataUser);
             res.download(path, 'notas.xlsx');
         }else{
-            res.send('error')
+            const path = await getJsonFromArray(arrayData[3], arrayDataJson)
+            //console.log(path)
+            //res.send(path)
+            res.download(path, 'notas.json')
         }
     } catch (error) {
         throw new Error("No se han podido obtener los datos");
@@ -87,7 +91,6 @@ getGradesReport = async (url, token, workshopid) => {
     try {
     let response = await request(options);
     let respuesta = JSON.parse(response);
-    console.log(respuesta);
     if(respuesta.errorcode=="nothingfound"){
         arrayData = [];
         return arrayData;
@@ -108,6 +111,9 @@ getGradesReport = async (url, token, workshopid) => {
             })
             arraySubmissions.push({
                 submissionid: arrayReport.submissionid,
+                assessmentid: reviewedby.assessmentid,
+                userReviewed: arrayReport.userid,
+                userReviewer: reviewedby.userid,
             })
         }
     }
@@ -169,7 +175,7 @@ getGradesReport = async (url, token, workshopid) => {
         }
     }
 
-    return [arrayData, arrayFeedbackFinal, arrayAsp];
+    return [arrayData, arrayFeedbackFinal, arrayAsp, arraySubmissions];
     } catch (error) {
         throw error;
     }
@@ -239,7 +245,6 @@ getMatchData = async (array) => {
          })
          Self = 0;
     }
-    console.log(arrayDataUser)
     return arrayDataUser;
 
 }
@@ -264,7 +269,6 @@ getExcelFromArray = async (array) => {
             Self: array[4 + i].Self,
         })
     }
-    //console.log(arrayExcel);
     var workbook = new Excel.Workbook();
     var worksheet = workbook.addWorksheet('Notas');
     worksheet.columns = [{
@@ -328,7 +332,122 @@ getExcelFromArray = async (array) => {
     }
 
 }
+getMatchJson = async (array) => {
+    var arrayUsers = array[0];
+    var arrayData = array[1];
+    var arrayFeedback = array[2];
+    var arrayAspects = array[3];
+    var Self = 0;
+    var arrayDataJson = [];
+    var reviewed = [];
+    var reviewer = [];
+    for (let i = 0; i < arrayData.length; i++) {
+        for (let l = 0; l < arrayUsers.length; l++) {
+            if (arrayData[i].userReviewed == arrayUsers[l].id) {
+                reviewed.push({
+                    idUserReviewed: arrayUsers[l].id,
+                    nameUserReviewed: arrayUsers[l].fullname,
+                })
+            }
 
-getJsonFromArray = async (array) => {
-    
+            if (arrayData[i].userReviewer == arrayUsers[l].id) {
+                reviewer.push({
+                    idUserReviewer: arrayUsers[l].id,
+                    nameUserReviewer: arrayUsers[l].fullname,
+                })
+            }
+        }
+        arrayDataJson.push({
+                nameUserReviewed: reviewed[i].nameUserReviewed,
+                idUserReviewed: reviewed[i].idUserReviewed,
+                nameUserReviewer: reviewer[i].nameUserReviewer,
+                idUserReviewer: reviewer[i].idUserReviewer,
+            })
+
+         arrayDataJson.push({
+             totalGrade: arrayData[i].totalGrade,
+             totalGradeAspects: arrayData[i].gradeTotalAspects,
+         })
+         for (let j = 0; j < arrayFeedback.length; j++) {
+             if (arrayData[i].assessmentid == arrayFeedback[j].assessmentid) {
+                 arrayDataJson.push({
+                     feedbackFinal: arrayFeedback[j].feedbackFinal,
+                 })
+             }
+         }
+
+         for (let k = 0; k < arrayAspects.length; k++) {
+             if (arrayData[i].assessmentid == arrayAspects[k].assessmentid) {
+
+                 arrayDataJson.push({
+                     grade1: arrayAspects[k].grade1,
+                     feedback1: arrayAspects[k].feedback1,
+                     grade2: arrayAspects[k].grade2,
+                     feedback2: arrayAspects[k].feedback2,
+                     grade3: arrayAspects[k].grade3,
+                     feedback3: arrayAspects[k].feedback3,
+                     assessmentid: arrayAspects[k].assessmentid,
+                 })
+             }
+         }
+         if (arrayData[i].userReviewed == arrayData[i].userReviewer) {
+             Self = 1;
+         }
+         arrayDataJson.push({
+             Self: Self,
+         })
+         Self = 0;
+    }
+    return arrayDataJson;
+
+}
+
+getJsonFromArray = async (arraySub, arrayMatch) => {
+    arrayJson = [];
+    arrayAux = [];
+        for (let i = 0; i < arrayMatch.length; i += 5) {
+            arrayAux.push({
+                nameUserReviewed: arrayMatch[0 + i].nameUserReviewed,
+                nameUserReviewer: arrayMatch[0 + i].nameUserReviewer,
+                idUserReviewed: arrayMatch[0 + i].idUserReviewed,
+                idUserReviewer: arrayMatch[0 + i].idUserReviewer,
+                totalGrade: arrayMatch[1 + i].totalGrade,
+                totalGradeAspects: arrayMatch[1 + i].totalGradeAspects,
+                feedbackFinal: arrayMatch[2 + i].feedbackFinal,
+                grade1: arrayMatch[3 + i].grade1,
+                feedback1: arrayMatch[3 + i].feedback1,
+                grade2: arrayMatch[3 + i].grade2,
+                feedback2: arrayMatch[3 + i].feedback2,
+                grade3: arrayMatch[3 + i].grade3,
+                feedback3: arrayMatch[3 + i].feedback3,
+                assessmentid: arrayMatch[3 + i].assessmentid,
+                Self: arrayMatch[4 + i].Self,
+            })
+    }
+        for (let j = 0; j < arraySub.length; j++) {
+            if(arrayJson.length==0){
+            arrayJson.push({
+                submissionid: arraySub[j].submissionid,
+
+            })
+            }else{
+                if(arraySub[j].submissionid!=arraySub[j-1].submissionid){
+                    arrayJson.push({
+                        submissionid: arraySub[j].submissionid,
+
+                    })
+                }
+            }
+            for (let l = 0; l < arrayAux.length; l++) {
+            if(arrayAux[l].idUserReviewed==arraySub[j].userReviewed && arrayAux[l].idUserReviewer == arraySub[j].userReviewer && arrayAux[l].assessmentid == arraySub[j].assessmentid){
+            arrayJson.push({
+                DataUser: arrayAux[l]
+            })
+            }
+        }
+    }
+    var myJson = JSON.stringify(arrayJson);
+    await fs.writeFile('./myJson.json', myJson)
+    return './myJson.json';
+    //return myJson;
 }
