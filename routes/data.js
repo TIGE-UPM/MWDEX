@@ -1,7 +1,9 @@
 //var request = require('request');
 var request = require('request-promise');
 var Excel = require('exceljs/modern.nodejs');
-var fs = require('fs');
+var jsonfile = require('jsonfile')
+
+
 
 //llamo a getUsers y también a las siguientes funciones
 exports.getInfo = async (req, res) => {
@@ -20,9 +22,10 @@ exports.getInfo = async (req, res) => {
             res.download(path, 'notas.xlsx');
         }else{
             const path = await getJsonFromArray(arrayData[3], arrayDataJson)
-            //console.log(path)
-            //res.send(path)
-            res.download(path, 'notas.json')
+            await jsonfile.writeFile('notas.json', path, function (err) {
+                if (err) console.error(err)
+                res.download('notas.json')
+            })
         }
     } catch (error) {
         throw new Error("No se han podido obtener los datos");
@@ -325,8 +328,8 @@ getExcelFromArray = async (array) => {
         worksheet.addRow([elem.nameUserReviewed, elem.nameUserReviewer, elem.totalGrade, elem.totalGradeAspects, elem.feedbackFinal, elem.grade1, elem.feedback1, elem.grade2, elem.feedback2, elem.grade3, elem.feedback3, elem.Self]);
     }
     try{
-        await workbook.xlsx.writeFile('grades.xlsx');
-        return 'grades.xlsx';
+        await workbook.xlsx.writeFile('notas.xlsx');
+        return 'notas.xlsx';
     }catch(error){
         throw error;
     }
@@ -446,8 +449,6 @@ getJsonFromArray = async (arraySub, arrayMatch) => {
             }
         }
     }
-    var myJson = JSON.stringify(arrayJson);
-    await fs.writeFile('./myJson.json', myJson)
-    return './myJson.json';
-    //return myJson;
+    var myJson = await JSON.stringify(arrayJson); 
+    return myJson;
 }
