@@ -13,6 +13,7 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/pivot', express.static(path.join(__dirname, 'node_modules/pivottable/dist')));
 
 var router = express.Router(); 
 var routes = require('./routes/index.js');
@@ -24,7 +25,7 @@ var grades = require('./routes/data.js');
 app.use(router);
 router.use(function(req, res, next) {
   // do logging
-  console.log('Realizando petición');
+  console.log('Realizando peticion');
   next(); // make sure we go to the next routes and don't stop here
 });
 router.get('/',routes.index);
