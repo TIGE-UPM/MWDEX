@@ -1,26 +1,26 @@
 <!DOCTYPE html>
 <html>
-<link rel='stylesheet' href='/stylesheets/style.css' />
+<link rel='stylesheet' href='./stylesheets/style.css' />
 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-  <h1>Workshop Grades</h1>
+  <h1>Moodle Workshop Data EXtractor (MWDEX)</h1>
   <header>
   <% include ./partials/header %>
 </header>
   <head>
-    <title>Workshop Grades</title>
+    <title>MWDEX</title>
   </head>
 <body>
-<a href="javascript:history.back()"> Volver Atrás</a>
-<h4>Elija el taller del que quiere ver las notas en el siguiente desplegable:</h4>
+<a href="javascript:history.back()"> Back</a>
+<h4>Please select a Workshop from the list:</h4>
 <br/><br/>
-<form method='POST' action='/users' id="course" enctype="application/x-www-form-urlencoded">
+<form method='POST' action='./users' id="course" enctype="application/x-www-form-urlencoded">
 <input type="hidden" value=<%=url%> name='url'>
 <input type="hidden" value=<%=token%> name='token'>
 <input type="hidden" value=<%=array%> name='workshops'>
 <input type="hidden" value=<%=courseid%> name='courseid'>
 <div class="row">
 <div class="col-md-3">
-	<p>Seleccione el taller:</p>
+	<p>Workshops available:</p>
 </div>
 <br></br>
 <div class="col-md-3">
@@ -37,7 +37,7 @@ for(i=0;i<arrays.length;i++){
 <br></br>
 <br></br>
 <br></br>
-<input type="submit" value="Mostrar" padding= 200px> 
+<input type="submit" value="Continue" padding= 200px> 
 </div></div>
 </form>
 <br/> 

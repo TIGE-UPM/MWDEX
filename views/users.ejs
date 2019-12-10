@@ -1,26 +1,25 @@
 <!DOCTYPE html>
 <html>
-<link rel='stylesheet' href='/stylesheets/style.css' />
+<link rel='stylesheet' href='./stylesheets/style.css' />
 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-  <h1>Workshop Grades</h1>
+  <h1>Moodle Workshop Data EXtractor (MWDEX)</h1>
   <header>
   <% include ./partials/header %>
 </header>
   <head>
-    <title>Workshop Grades</title>
+    <title>MWDEX</title>
   </head>
 <body>
-<a href="javascript:history.back()"> Volver Atrás</a>
-<h4>Lista de alumnos matriculados:</h4>
-<form method='GET' action='/grades' id="resp" enctype="application/x-www-form-urlencoded">
+<a href="javascript:history.back()"> Back</a>
+<h4>Students participating in the Workshop:</h4>
+<form method='GET' action='./grades' id="resp" enctype="application/x-www-form-urlencoded">
 <input type="hidden" value=<%=url%> name='url'>
 <input type="hidden" value=<%=array%> name='response'>
 <input type="hidden" value=<%=token%> name='token'>
 <input type="hidden" value=<%=courseid%> name='courseid'>
 <input type="hidden" value=<%=workshopid%> name='workshopid'>
 
-<div class="row">
-<br></br>
+<div class="row" id="selector">
 <div class="col-md-3">
 <ul id="id" name="id"></ul>
 <script type="text/javascript">
@@ -34,20 +33,22 @@ for(i=0;i<arrays.length;i++){
   
 }
 </script>
-<br></br>
-<br></br>
-<br></br>
-<input type = "radio" name = "check" value = "excel" /> Opción 1: Descargar excel
-<br></br>
-<input type = "radio" name = "check" value = "json" /> Opción 2: Descargar JSON
-<br></br>
-<input type="submit" value="Notas" padding= 200px> 
-</div></div>
+<input type = "radio" name = "check" value = "excel" /> Download MS Excel file (.xlsx)
+<br/>
+<input type = "radio" name = "check" value = "json1" /> Download formatted JSON file (.json)
+<br/>
+<input type = "radio" name = "check" value = "json2" /> Download raw JSON file (.json)
+<br/>
+<input type = "radio" name = "check" value = "pivot" /> Interactive data visualization and charts (in browser)
+<br/>
+<input type = "radio" name = "check" value = "pivot_wdr" /> Interactive pivot table and export (in browser)
+<br/>
+<input type="submit" value="Continue" padding="200px"> 
 </form>
-<br/> 
+
 </body>
 <footer>
-<br/><br/><br/><br/>
+<br/><br/>
     <% include ./partials/footer %>
 </footer>
 </html>
