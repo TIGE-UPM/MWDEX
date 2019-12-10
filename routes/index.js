@@ -3,13 +3,13 @@ var router = express.Router();
 
 router.index = function(req, res){
 	var msgAlert="";
-	res.render('index', { title: 'Workshop Grades',msgAlert:msgAlert});
+	res.render('index', { title: 'MWDEX',msgAlert:msgAlert});
 };
 /* GET home page. */
 router.about = function(req, res){
-  res.render('about', { title: 'Workshop Grades' });
+  res.render('about', { title: 'MWDEX' });
 };
 router.courses = function(req, res){
-  res.render('courses', { title: 'Workshop Grades' });
+  res.render('courses', { title: 'MWDEX' });
 };
 module.exports = router;

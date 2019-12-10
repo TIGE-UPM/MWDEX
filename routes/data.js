@@ -2,6 +2,15 @@
 var request = require('request-promise');
 var Excel = require('exceljs/modern.nodejs');
 var jsonfile = require('jsonfile')
+var XLSX = require('xlsx');
+var jsdom = require("jsdom");
+const { JSDOM } = jsdom;
+const { window } = new JSDOM();
+const { document } = (new JSDOM('')).window;
+global.document = document;
+
+var $ = jQuery = require('jquery')(window);
+//var pt = require('pivottable');
 
 
 
@@ -16,17 +25,48 @@ exports.getInfo = async (req, res) => {
             res.render('error');
         }
         const arrayDataUser = await getMatchData(array);
-        const arrayDataJson = await getMatchJson(array)
+        const arrayDataJson = await getMatchJson(array);
+		let ts = Date.now();
+		let date_ob = new Date(ts);
+		let date = ("0" + date_ob.getDate()).slice(-2);
+		let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
+		let year = date_ob.getFullYear();
+		let hours = ("0" + date_ob.getHours()).slice(-2);
+		let minutes = ("0" + date_ob.getMinutes()).slice(-2);
+		let seconds = ("0" + date_ob.getSeconds()).slice(-2);			
+		let downloadfile = 'MWDEX_download_' + year + "_" + month + "_" + date + "_" + hours + "_" + minutes + "_" + seconds + '.xlsx';
+		let downloadfilejson = 'MWDEX_download_' + year + "_" + month + "_" + date + "_" + hours + "_" + minutes + "_" + seconds + '.json';
         if(req.query.check=="excel"){
-            const path = await getExcelFromArray(arrayDataUser);
-            res.download(path, 'notas.xlsx');
-        }else{
-            const path = await getJsonFromArray(arrayData[3], arrayDataJson)
-            await jsonfile.writeFile('notas.json', path, function (err) {
-                if (err) console.error(err)
-                res.download('notas.json')
+			const wb = getExcelFromArray(arrayDataUser, res, downloadfile);
+		   //const path = getExcelFromArray(arrayDataUser);
+			//res.download(path, downloadfile);
+        }
+		if(req.query.check=="json1") {
+            const jsonDataArray = await getJsonFromArray(arrayData[3], arrayDataJson);
+            await jsonfile.writeFile(downloadfilejson, jsonDataArray, function (err) {
+                if (err) console.error(err);
+				res.header("Content-Type",'application/json');
+				res.send(jsonDataArray);
+                //res.download(downloadfilejson);
             })
         }
+		if(req.query.check=="json2") {
+            const jsonDataArray2 = await getJsonFromArray2(arrayDataUser);
+            await jsonfile.writeFile(downloadfilejson, jsonDataArray2, function (err) {
+                if (err) console.error(err);
+				res.header("Content-Type",'application/json');
+				res.send(jsonDataArray2);
+                //res.download(downloadfilejson);
+            })
+        }
+		if(req.query.check=="pivot") {
+			displayExcelFromArray(arrayDataUser, res);
+			//console.log(arrayDataUser);
+		}
+		if(req.query.check=="pivot_wdr") {
+			displayExcelFromArrayWdr(arrayDataUser, res);
+			//console.log(arrayDataUser);
+		}
     } catch (error) {
         throw new Error("No se han podido obtener los datos");
     }
@@ -252,7 +292,7 @@ getMatchData = async (array) => {
 
 }
 
-getExcelFromArray = async (array) => {
+getExcelFromArray = async (array,response, filename) => {
 
     var arrayExcel = [];
 
@@ -328,13 +368,113 @@ getExcelFromArray = async (array) => {
         worksheet.addRow([elem.nameUserReviewed, elem.nameUserReviewer, elem.totalGrade, elem.totalGradeAspects, elem.feedbackFinal, elem.grade1, elem.feedback1, elem.grade2, elem.feedback2, elem.grade3, elem.feedback3, elem.Self]);
     }
     try{
-        await workbook.xlsx.writeFile('notas.xlsx');
-        return 'notas.xlsx';
-    }catch(error){
-        throw error;
-    }
+		response.setHeader('Content-Type', 'application/vnd.openxmlformats');
+		response.setHeader("Content-Disposition", "attachment; filename=" + filename);
+		workbook.xlsx.write(response).then(function(){
+			response.end();
+		});
+	}catch (error){
+		console.log(error);   
+	}
 
 }
+
+getJsonFromArray2 = async (array) => {
+    var arrayJson = [];
+
+    for (let i = 0; i < array.length; i += 5) {
+        arrayJson.push({
+            Submitter: array[0 + i].nameUserReviewed,
+            Reviewer: array[0 + i].nameUserReviewer,
+            AvgTotalGrade: array[1 + i].totalGrade,
+            ReviewerTotalGrade: array[1 + i].totalGradeAspects,
+            GlobalFeedback: array[2 + i].feedbackFinal,
+            Rubric1Grade: array[3 + i].grade1,
+            Rubric1Feedback: array[3 + i].feedback1,
+            Rubric2Grade: array[3 + i].grade2,
+            Rubric2Feedback: array[3 + i].feedback2,
+            Rubric3Grade: array[3 + i].grade3,
+            Rubric3Feedback: array[3 + i].feedback3,
+            SelfAssessment: array[4 + i].Self,
+        })
+    }
+    try{
+		var myJson = await JSON.stringify(arrayJson); 
+		return myJson;
+	}catch (error){
+		console.log(error);   
+	}
+	
+}
+
+displayExcelFromArray = async (array,response) => {
+
+    var arrayExcel = [];
+
+    for (let i = 0; i < array.length; i += 5) {
+        arrayExcel.push({
+            Submitter: array[0 + i].nameUserReviewed,
+            Reviewer: array[0 + i].nameUserReviewer,
+            AvgTotalGrade: array[1 + i].totalGrade,
+            ReviewerTotalGrade: array[1 + i].totalGradeAspects,
+            GlobalFeedback: array[2 + i].feedbackFinal,
+            Rubric1Grade: array[3 + i].grade1,
+            Rubric1Feedback: array[3 + i].feedback1,
+            Rubric2Grade: array[3 + i].grade2,
+            Rubric2Feedback: array[3 + i].feedback2,
+            Rubric3Grade: array[3 + i].grade3,
+            Rubric3Feedback: array[3 + i].feedback3,
+            SelfAssessment: array[4 + i].Self,
+        })
+    }
+  
+	// var arrayJSON = [];
+    // for (let elem of arrayExcel) {
+        // arrayJSON.push({elem.nameUserReviewed, elem.nameUserReviewer, elem.totalGrade, elem.totalGradeAspects, elem.feedbackFinal, elem.grade1, elem.feedback1, elem.grade2, elem.feedback2, elem.grade3, elem.feedback3, elem.Self});
+    // }
+    try{
+		//var myJson = await JSON.stringify(arrayExcel); 
+		response.render('grades', {data:arrayExcel});     
+	}catch (error){
+		console.log(error);   
+	}
+
+}
+
+displayExcelFromArrayWdr = async (array,response) => {
+
+    var arrayExcel = [];
+
+    for (let i = 0; i < array.length; i += 5) {
+        arrayExcel.push({
+            Submitter: array[0 + i].nameUserReviewed,
+            Reviewer: array[0 + i].nameUserReviewer,
+            AvgTotalGrade: array[1 + i].totalGrade,
+            ReviewerTotalGrade: array[1 + i].totalGradeAspects,
+            GlobalFeedback: array[2 + i].feedbackFinal,
+            Rubric1Grade: array[3 + i].grade1,
+            Rubric1Feedback: array[3 + i].feedback1,
+            Rubric2Grade: array[3 + i].grade2,
+            Rubric2Feedback: array[3 + i].feedback2,
+            Rubric3Grade: array[3 + i].grade3,
+            Rubric3Feedback: array[3 + i].feedback3,
+            SelfAssessment: array[4 + i].Self,
+        })
+    }
+  
+	// var arrayJSON = [];
+    // for (let elem of arrayExcel) {
+        // arrayJSON.push({elem.nameUserReviewed, elem.nameUserReviewer, elem.totalGrade, elem.totalGradeAspects, elem.feedbackFinal, elem.grade1, elem.feedback1, elem.grade2, elem.feedback2, elem.grade3, elem.feedback3, elem.Self});
+    // }
+    try{
+		//var myJson = await JSON.stringify(arrayExcel); 
+		response.render('grades_wdr', {data:arrayExcel});     
+	}catch (error){
+		console.log(error);   
+	}
+
+}
+
 getMatchJson = async (array) => {
     var arrayUsers = array[0];
     var arrayData = array[1];
