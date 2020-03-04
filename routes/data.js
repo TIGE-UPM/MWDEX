@@ -197,9 +197,12 @@ getGradesReport = async (url, token, workshopid) => {
         var respuestaForm = JSON.parse(responseForm);
         if (respuestaForm.current.length > 0) {
             arrayAsp.push({
-                grade1: (respuestaForm.current[1].value - 1) / (10),
-                grade2: (respuestaForm.current[4].value - 1) / (10),
-                grade3: (respuestaForm.current[7].value - 1) / (10),
+                // grade1: (respuestaForm.current[1].value - 1) / (10),
+                // grade2: (respuestaForm.current[4].value - 1) / (10),
+                // grade3: (respuestaForm.current[7].value - 1) / (10),
+				grade1: respuestaForm.current[1].value,
+                grade2: respuestaForm.current[4].value,
+                grade3: respuestaForm.current[7].value,
                 feedback1: respuestaForm.current[2].value,
                 feedback2: respuestaForm.current[5].value,
                 feedback3: respuestaForm.current[8].value,
