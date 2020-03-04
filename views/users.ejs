@@ -10,8 +10,8 @@
     <title>MWDEX</title>
   </head>
 <body>
-<a href="javascript:history.back()"> Back</a>
-<h4>Students participating in the Workshop:</h4>
+<a href="javascript:history.back()"> Volver Atr&aacute;s</a>
+<h4>Lista de alumnos matriculados:</h4>
 <form method='GET' action='./grades' id="resp" enctype="application/x-www-form-urlencoded">
 <input type="hidden" value=<%=url%> name='url'>
 <input type="hidden" value=<%=array%> name='response'>
@@ -33,17 +33,17 @@ for(i=0;i<arrays.length;i++){
   
 }
 </script>
-<input type = "radio" name = "check" value = "excel" /> Download MS Excel file (.xlsx)
+<input type = "radio" name = "check" value = "excel" /> Opci&oacute;n 1: Descargar datos en formato MS Excel (.xlsx)
 <br/>
-<input type = "radio" name = "check" value = "json1" /> Download formatted JSON file (.json)
+<input type = "radio" name = "check" value = "json1" /> Opci&oacute;n 2: Descargar JSON formateado (.json) [EXPERIMENTAL, no usar]
 <br/>
-<input type = "radio" name = "check" value = "json2" /> Download raw JSON file (.json)
+<input type = "radio" name = "check" value = "json2" /> Opci&oacute;n 3: Descargar JSON original (.json) [EXPERIMENTAL, no usar]
 <br/>
-<input type = "radio" name = "check" value = "pivot" /> Interactive data visualization and charts (in browser)
+<input type = "radio" name = "check" value = "pivot" /> Visualizaci&oacute;n interactiva de datos y gráficas
 <br/>
-<input type = "radio" name = "check" value = "pivot_wdr" /> Interactive pivot table and export (in browser)
+<input type = "radio" name = "check" value = "pivot_wdr" /> Tabla din&aacute;mica interactiva y exportaci&oacute;n
 <br/>
-<input type="submit" value="Continue" padding="200px"> 
+<input type="submit" value="Descargar" padding="200px"> 
 </form>
 
 </body>
